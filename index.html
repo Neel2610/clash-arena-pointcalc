@@ -38,8 +38,8 @@
         <!-- Main Content -->
         <main class="main-content">
             
-            <!-- Lobby Management Section -->
-            <section class="lobby-section">
+            <!-- LOBBY LIST VIEW -->
+            <section class="lobby-section" id="lobbyListView">
                 
                 <!-- Section Header -->
                 <div class="section-header">
@@ -83,6 +83,109 @@
                         <span class="btn-icon">+</span>
                         Create First Lobby
                     </button>
+                </div>
+
+            </section>
+
+            <!-- LOBBY DETAIL VIEW -->
+            <section class="lobby-detail-section hidden" id="lobbyDetailView">
+                
+                <!-- Back Button & Lobby Header -->
+                <div class="detail-header">
+                    <button class="btn-back" id="backToLobbies">
+                        <span class="btn-icon">←</span>
+                        Back to Lobbies
+                    </button>
+                    <div class="detail-title-section">
+                        <h2 class="detail-title" id="currentLobbyName">Lobby Name</h2>
+                        <div class="detail-subtitle">
+                            <span id="currentLobbyId">lobby_id</span>
+                            <span class="separator">•</span>
+                            <span id="currentMatchCount">Match 0/6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Input Section -->
+                <div class="match-input-section">
+                    <div class="section-header-small">
+                        <h3 class="section-title-small">
+                            <span class="title-icon">📝</span>
+                            Match Input
+                        </h3>
+                        <button class="btn-primary" id="addMatchBtn">
+                            <span class="btn-icon">+</span>
+                            Add Match Results
+                        </button>
+                    </div>
+
+                    <!-- Match Input Form (Hidden by default) -->
+                    <div class="match-form hidden" id="matchForm">
+                        <div class="form-header">
+                            <h4 class="form-title">Enter Match Results</h4>
+                            <button class="form-close" id="closeMatchForm">✕</button>
+                        </div>
+                        
+                        <div class="match-form-grid" id="matchFormGrid">
+                            <!-- Team input rows will be generated here -->
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-secondary" id="cancelMatchBtn">Cancel</button>
+                            <button class="btn-primary" id="saveMatchBtn">
+                                <span class="btn-icon">✓</span>
+                                Save Match Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Rankings Table -->
+                <div class="rankings-section">
+                    <div class="section-header-small">
+                        <h3 class="section-title-small">
+                            <span class="title-icon">🏆</span>
+                            Live Rankings
+                        </h3>
+                        <button class="btn-secondary" id="exportTableBtn">
+                            <span class="btn-icon">⬇</span>
+                            Export
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="rankings-table" id="rankingsTable">
+                            <thead>
+                                <tr>
+                                    <th class="rank-col">Rank</th>
+                                    <th class="team-col">Team Name</th>
+                                    <th class="stat-col">Booyahs!</th>
+                                    <th class="stat-col">Place Pts</th>
+                                    <th class="stat-col">Kills</th>
+                                    <th class="stat-col total-col">Total Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rankingsTableBody">
+                                <!-- Rankings will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Match History -->
+                <div class="match-history-section">
+                    <div class="section-header-small">
+                        <h3 class="section-title-small">
+                            <span class="title-icon">📊</span>
+                            Match History
+                        </h3>
+                    </div>
+                    <div class="match-history-list" id="matchHistoryList">
+                        <!-- Match history cards will be inserted here -->
+                    </div>
+                    <div class="empty-state-small" id="emptyMatchHistory">
+                        <p>No matches recorded yet</p>
+                    </div>
                 </div>
 
             </section>
@@ -153,4 +256,4 @@
     <!-- Script -->
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
