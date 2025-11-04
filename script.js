@@ -671,7 +671,7 @@ function sortTeamsByRanking(teams) {
         }
         // 4. Kills
         return b.killPoints - a.killPoints;
-    });cla
+    });
 /**
  * Create ranking table row with editable team name
  */
