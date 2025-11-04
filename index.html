@@ -37,30 +37,56 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="welcome-section">
-                <div class="welcome-card">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="success-icon">✓</div>
-                        <h2 class="welcome-title">Setup Successful</h2>
-                        <p class="welcome-text">Clash Arena ESP Manager is ready for deployment</p>
-                        <div class="system-info">
-                            <div class="info-item">
-                                <span class="info-label">Status:</span>
-                                <span class="info-value">Initialized</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Version:</span>
-                                <span class="info-value">1.0.0</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Platform:</span>
-                                <span class="info-value">GitHub Pages Ready</span>
-                            </div>
-                        </div>
+            
+            <!-- Lobby Management Section -->
+            <section class="lobby-section">
+                
+                <!-- Section Header -->
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">🎮</span>
+                        Lobby Management
+                    </h2>
+                    <button class="btn-primary" id="createLobbyBtn">
+                        <span class="btn-icon">+</span>
+                        Create Lobby
+                    </button>
+                </div>
+
+                <!-- Lobby Stats -->
+                <div class="lobby-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalLobbies">0</div>
+                        <div class="stat-label">Active Lobbies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTeams">0</div>
+                        <div class="stat-label">Total Teams</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalMatches">0</div>
+                        <div class="stat-label">Completed Matches</div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Lobbies Grid -->
+                <div class="lobbies-grid" id="lobbiesGrid">
+                    <!-- Lobby cards will be inserted here -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">📭</div>
+                    <h3 class="empty-title">No Lobbies Created</h3>
+                    <p class="empty-text">Create your first lobby to start managing teams and matches</p>
+                    <button class="btn-secondary" id="createFirstLobby">
+                        <span class="btn-icon">+</span>
+                        Create First Lobby
+                    </button>
+                </div>
+
+            </section>
+
         </main>
 
         <!-- Footer -->
@@ -70,7 +96,61 @@
 
     </div>
 
+    <!-- Create Lobby Modal -->
+    <div class="modal" id="createLobbyModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Lobby</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="lobbyName" class="form-label">Lobby Name</label>
+                    <input 
+                        type="text" 
+                        id="lobbyName" 
+                        class="form-input" 
+                        placeholder="Enter lobby name (e.g., Lobby A, Finals 1)"
+                        maxlength="30"
+                    >
+                    <div class="form-hint">Maximum 30 characters</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn-primary" id="confirmCreateBtn">
+                    <span class="btn-icon">✓</span>
+                    Create Lobby
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteLobbyModal">
+        <div class="modal-overlay" id="deleteModalOverlay"></div>
+        <div class="modal-content modal-danger">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Lobby</h3>
+                <button class="modal-close" id="deleteModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-icon">⚠️</div>
+                <p class="warning-text">Are you sure you want to delete <strong id="deleteLobbyName"></strong>?</p>
+                <p class="warning-subtext">This action cannot be undone. All teams and match data will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn-danger" id="confirmDeleteBtn">
+                    <span class="btn-icon">🗑️</span>
+                    Delete Lobby
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Script -->
     <script src="script.js"></script>
 </body>
-  </html>
+</html>
