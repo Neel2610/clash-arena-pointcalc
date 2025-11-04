@@ -1058,7 +1058,370 @@ padding: var(--space-xs);
 .team-col {
     min-width: 120px;
 }
+/* ========================================
+   PHASE 1.6 FIXES - ADD THESE TO EXISTING CSS
+   ======================================== */
 
+/* === TABLE SCROLL WRAPPER FOR MOBILE === */
+.table-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    margin-top: var(--space-md);
+}
+
+/* Hide scrollbar for cleaner look but keep functionality */
+.table-scroll-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-track {
+    background: var(--secondary-bg);
+    border-radius: 4px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: var(--accent-red);
+    border-radius: 4px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #ff1744;
+}
+
+/* === TABLE CONTAINER === */
+.table-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    min-width: 600px; /* Minimum width to prevent crushing */
+}
+
+/* === UPDATED TABLE STYLES === */
+.rankings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rankings-table thead {
+    background: var(--secondary-bg);
+}
+
+.rankings-table th {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    padding: var(--space-md) var(--space-sm);
+    text-align: left;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--accent-red);
+    white-space: nowrap;
+}
+
+.rankings-table td {
+    padding: var(--space-md) var(--space-sm);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.rankings-table tbody tr {
+    transition: var(--transition);
+}
+
+.rankings-table tbody tr:hover {
+    background: rgba(255, 8, 68, 0.05);
+}
+
+/* === COLUMN WIDTHS === */
+.rank-col {
+    width: 80px;
+    text-align: center !important;
+}
+
+.team-col {
+    min-width: 180px;
+    max-width: 250px;
+}
+
+.stat-col {
+    width: 90px;
+    text-align: center !important;
+}
+
+.total-col {
+    width: 110px;
+    font-weight: 700;
+    color: var(--accent-red) !important;
+}
+
+/* === RANK BADGES === */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.1rem;
+}
+
+.rank-1 {
+    background: linear-gradient(135deg, var(--gold), #ffed4e);
+    color: #000;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.rank-2 {
+    background: linear-gradient(135deg, var(--silver), #e8e8e8);
+    color: #000;
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
+}
+
+.rank-3 {
+    background: linear-gradient(135deg, var(--bronze), #e8a87c);
+    color: #000;
+    box-shadow: 0 0 15px rgba(205, 127, 50, 0.5);
+}
+
+.rank-default {
+    background: var(--secondary-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+/* === TEAM NAME CELL WITH EDIT === */
+.team-name-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.team-name-display {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-name-input {
+    width: 100%;
+    padding: 4px 8px;
+    background: var(--primary-bg);
+    border: 1px solid var(--accent-red);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.team-name-input:focus {
+    outline: none;
+    box-shadow: var(--glow-sm);
+}
+
+.edit-team-btn {
+    padding: 4px 8px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.edit-team-btn:hover {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+}
+
+/* === STAT CELLS === */
+.booyah-cell {
+    color: var(--gold);
+    font-weight: 700;
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+/* === TOTAL POINTS - INCREASED SIZE FOR DESKTOP === */
+.total-points {
+    font-family: var(--font-display);
+    font-size: 1.5rem; /* INCREASED from 1.2rem */
+    font-weight: 900;
+    color: var(--accent-red);
+    text-shadow: var(--glow-sm);
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+@media (max-width: 968px) {
+    .team-input-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-xs);
+    }
+    
+    .rankings-table {
+        font-size: 0.85rem;
+    }
+    
+    .rankings-table th,
+    .rankings-table td {
+        padding: var(--space-sm) var(--space-xs);
+    }
+    
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .total-points {
+        font-size: 1.3rem; /* Slightly smaller on tablets */
+    }
+}
+
+@media (max-width: 768px) {
+    .title-main {
+        font-size: 1.4rem;
+    }
+    
+    .title-sub {
+        font-size: 0.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.4rem;
+    }
+    
+    .lobbies-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .lobby-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-header-small {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Mobile table adjustments */
+    .table-container {
+        min-width: 550px; /* Allow smaller minimum on mobile */
+    }
+    
+    .total-points {
+        font-size: 1.2rem; /* Maintain readability on mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .app-container {
+        padding: var(--space-xs);
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .logo-section {
+        flex-direction: column;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .rankings-table {
+        font-size: 0.8rem;
+    }
+    
+    .team-col {
+        min-width: 140px;
+    }
+    
+    .stat-col {
+        width: 70px;
+    }
+    
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+    
+    .total-points {
+        font-size: 1.1rem;
+    }
+}
+
+/* === MATCH FORM TEAM NAME INPUT === */
+.team-input-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: var(--space-sm);
+    align-items: center;
+    padding: var(--space-sm);
+    background: var(--secondary-bg);
+    border-radius: 8px;
+}
+
+.team-name-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.team-name-editable {
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.team-name-editable:focus {
+    outline: none;
+    border-color: var(--accent-red);
+    box-shadow: var(--glow-sm);
+}
+
+.team-number-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-display);
+   }
 .stat-col {
     width: 60px;
 }
