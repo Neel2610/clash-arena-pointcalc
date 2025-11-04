@@ -671,9 +671,7 @@ function sortTeamsByRanking(teams) {
         }
         // 4. Kills
         return b.killPoints - a.killPoints;
-    });
-}
-
+    });cla
 /**
  * Create ranking table row with editable team name
  */
@@ -684,4 +682,155 @@ function createRankingRow(rank, team) {
     if (rank === 1) rankClass = 'rank-1';
     else if (rank === 2) rankClass = 'rank-2';
     else if (rank === 3) rankClass = 'rank-3';
-    tr.innerHTML = `<td cla
+    tr.innerHTML = `<td class="rank-col"> <div class="rank-badge ${rankClass}">${rank}</div> </td> <td class="team-col"> <div class="team-name-cell"> <span class="team-name-display" id="display_${team.id}">${escapeHtml(team.name)}</span> <button class="edit-team-btn" onclick="editTeamName('${team.id}')">✏️ Edit</button> </div> </td> <td class="stat-col booyah-cell">${team.booyahs}</td> <td class="stat-col"> <span class="stat-value">${team.placementPoints}</span> </td> <td class="stat-col"> <span class="stat-value">${team.killPoints}</span> </td> <td class="stat-col total-col"> <span class="total-points">${team.totalPoints}</span> </td>`;
+return tr;
+}
+/**
+Edit team name inline
+*/
+function editTeamName(teamId) {
+const lobby = getCurrentLobby();
+if (!lobby) return;
+const team = lobby.teams.find(t => t.id === teamId);
+if (!team) return;
+const displayElement = document.getElementById(display_${teamId});
+const currentName = team.name;
+// Create input
+const input = document.createElement('input');
+input.type = 'text';
+input.className = 'team-name-input';
+input.value = currentName;
+input.maxLength = 25;
+// Replace display with input
+const cell = displayElement.parentElement;
+cell.replaceChild(input, displayElement);
+input.focus();
+input.select();
+// Save on blur or enter
+const saveEdit = () => {
+const newName = input.value.trim();
+if (newName && newName.length > 0) {
+team.name = newName;
+saveAppData();
+}
+renderRankingsTable();
+};
+input.addEventListener('blur', saveEdit);
+input.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') {
+saveEdit();
+}
+});
+console.log(✏️ Editing team: ${currentName});
+}
+/**
+Render match history
+*/
+function renderMatchHistory() {
+const lobby = getCurrentLobby();
+if (!lobby) return;
+const container = document.getElementById('matchHistoryList');
+const emptyState = document.getElementById('emptyMatchHistory');
+if (lobby.matches.length === 0) {
+container.innerHTML = '';
+emptyState.classList.remove('hidden');
+return;
+}
+emptyState.classList.add('hidden');
+container.innerHTML = '';
+// Render matches in reverse order (newest first)
+[...lobby.matches].reverse().forEach(match => {
+const card = createMatchHistoryCard(match, lobby);
+container.appendChild(card);
+});
+}
+/**
+Create match history card
+*/
+function createMatchHistoryCard(match, lobby) {
+const card = document.createElement('div');
+card.className = 'match-history-card';
+// Find winner (placement 1)
+const winnerResult = match.results.find(r => r.placement === 1);
+const winnerTeam = lobby.teams.find(t => t.id === winnerResult.teamId);
+// Calculate total kills in match
+const totalKills = match.results.reduce((sum, r) => sum + r.kills, 0);
+// Count booyahs
+const booyahCount = match.results.filter(r => r.booyah).length;
+// Format date
+const date = new Date(match.timestamp);
+const dateStr = date.toLocaleString('en-US', {
+month: 'short',
+day: 'numeric',
+hour: '2-digit',
+minute: '2-digit'
+});
+card.innerHTML = <div class="match-header"> <div class="match-number">Match ${match.matchNumber}</div> <div class="match-date">${dateStr}</div> </div> <div class="match-details"> <div class="match-detail-item"> <div class="detail-label">Winner</div> <div class="detail-value" style="font-size: 1rem; color: var(--gold);"> ${escapeHtml(winnerTeam.name)} </div> </div> <div class="match-detail-item"> <div class="detail-label">Total Kills</div> <div class="detail-value">${totalKills}</div> </div> <div class="match-detail-item"> <div class="detail-label">Booyahs</div> <div class="detail-value">${booyahCount}</div> </div> </div>;
+return card;
+}
+/**
+Export table (placeholder for Phase 2)
+*/
+function exportTable() {
+const lobby = getCurrentLobby();
+if (!lobby) return;
+console.log('📥 Export functionality - Coming in Phase 2');
+alert('Export functionality will be available in the next phase!');
+// This will be implemented in Card Maker phase
+}
+/**
+Escape HTML to prevent XSS
+*/
+function escapeHtml(text) {
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
+}
+/**
+Calculate points for a team (legacy function)
+@param {number} placement - Team placement (1-12)
+@param {number} kills - Number of kills
+@returns {object} Points breakdown
+*/
+function calculatePoints(placement, kills) {
+const placementPoints = POINTS_SYSTEM.placement[placement] || 0;
+const killPoints = kills * POINTS_SYSTEM.kill;
+const totalPoints = placementPoints + killPoints;
+return {
+placement: placementPoints,
+booyah: 0,
+kills: killPoints,
+total: totalPoints
+};
+}
+/**
+DOM Ready Event
+*/
+document.addEventListener('DOMContentLoaded', () => {
+console.log('📄 DOM loaded');
+initializeApp();
+// Add animation classes after load
+setTimeout(() => {
+document.body.classList.add('loaded');
+}, 100);
+});
+/**
+Export utility for future use and debugging
+*/
+window.ClashArena = {
+config: APP_CONFIG,
+state: appState,
+points: POINTS_SYSTEM,
+calculatePoints: calculatePoints,
+calculateMatchPoints: calculateMatchPoints,
+save: saveAppData,
+load: loadAppData,
+createLobby: createLobby,
+deleteLobby: deleteLobby,
+viewLobby: viewLobby,
+sortTeams: sortTeamsByRanking,
+getCurrentLobby: getCurrentLobby,
+editTeamName: editTeamName
+};
+console.log('🚀 Clash Arena ESP Manager script loaded - Phase 1.6 Complete');
+console.log('🎯 Key Changes: Booyah = Tiebreaker only, Editable team names, Better mobile table');
