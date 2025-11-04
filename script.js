@@ -1,6 +1,6 @@
 // ========================================
 // CLASH ARENA ESP MANAGER - CORE SCRIPT
-// Version: 1.0.0 - Phase 1
+// Version: 1.5.0 - Full Team & Match Management
 // ========================================
 
 /**
@@ -8,7 +8,7 @@
  */
 const APP_CONFIG = {
     name: 'Clash Arena ESP Manager',
-    version: '1.0.0',
+    version: '1.5.0',
     maxLobbies: 4,
     maxTeams: 12,
     maxMatches: 6,
@@ -42,7 +42,7 @@ const POINTS_SYSTEM = {
  */
 let appState = {
     lobbies: [],
-    currentLobby: null,
+    currentLobbyId: null,
     initialized: false
 };
 
@@ -73,7 +73,7 @@ function initializeApp() {
     
     // Initialize UI
     initializeUI();
-    updateUI();
+    updateLobbyListUI();
 }
 
 /**
@@ -95,6 +95,14 @@ function initializeUI() {
     document.getElementById('deleteModalOverlay').addEventListener('click', closeDeleteModal);
     document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
     document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+    
+    // Lobby detail controls
+    document.getElementById('backToLobbies').addEventListener('click', showLobbyList);
+    document.getElementById('addMatchBtn').addEventListener('click', showMatchForm);
+    document.getElementById('closeMatchForm').addEventListener('click', hideMatchForm);
+    document.getElementById('cancelMatchBtn').addEventListener('click', hideMatchForm);
+    document.getElementById('saveMatchBtn').addEventListener('click', saveMatchResults);
+    document.getElementById('exportTableBtn').addEventListener('click', exportTable);
     
     // Enter key in lobby name input
     document.getElementById('lobbyName').addEventListener('keypress', (e) => {
@@ -150,7 +158,8 @@ function openCreateModal() {
     if (appState.lobbies.length >= APP_CONFIG.maxLobbies) {
         alert(`Maximum ${APP_CONFIG.maxLobbies} lobbies allowed`);
         return;
-                            }
+    }
+    
     const modal = document.getElementById('createLobbyModal');
     const input = document.getElementById('lobbyName');
     
@@ -210,7 +219,7 @@ function createLobby() {
     
     // Save and update UI
     saveAppData();
-    updateUI();
+    updateLobbyListUI();
     closeCreateModal();
     
     console.log(`✅ Lobby created: ${lobbyName} (${newLobby.id})`);
@@ -225,12 +234,11 @@ function initializeTeams() {
         teams.push({
             id: `team_${i}`,
             name: `Team ${i}`,
-            placement: 0,
-            kills: 0,
             totalPoints: 0,
             placementPoints: 0,
             killPoints: 0,
-            booyahs: 0
+            booyahs: 0,
+            matches: []
         });
     }
     return teams;
@@ -278,9 +286,15 @@ function confirmDelete() {
     // Remove from state
     appState.lobbies.splice(lobbyIndex, 1);
     
+    // If we're viewing this lobby, go back to list
+    if (appState.currentLobbyId === lobbyToDelete) {
+        appState.currentLobbyId = null;
+        showLobbyList();
+    }
+    
     // Save and update UI
     saveAppData();
-    updateUI();
+    updateLobbyListUI();
     closeDeleteModal();
     
     console.log(`🗑️ Lobby deleted: ${deletedLobby.name}`);
@@ -294,20 +308,42 @@ function deleteLobby(lobbyId) {
 }
 
 /**
- * View/Select lobby (placeholder for Phase 2)
+ * View/Open lobby detail
  */
 function viewLobby(lobbyId) {
     const lobby = appState.lobbies.find(l => l.id === lobbyId);
     if (!lobby) return;
     
-    console.log(`👁️ Viewing lobby: ${lobby.name} (Phase 2 feature)`);
-    // This will be implemented in Phase 2
+    appState.currentLobbyId = lobbyId;
+    
+    // Hide lobby list, show detail
+    document.getElementById('lobbyListView').classList.add('hidden');
+    document.getElementById('lobbyDetailView').classList.remove('hidden');
+    
+    // Update detail view
+    updateLobbyDetailUI();
+    
+    console.log(`👁️ Viewing lobby: ${lobby.name}`);
 }
 
 /**
- * Update entire UI
+ * Show lobby list view
  */
-function updateUI() {
+function showLobbyList() {
+    appState.currentLobbyId = null;
+    
+    document.getElementById('lobbyDetailView').classList.add('hidden');
+    document.getElementById('lobbyListView').classList.remove('hidden');
+    
+    updateLobbyListUI();
+    
+    console.log('📋 Showing lobby list');
+}
+
+/**
+ * Update lobby list UI
+ */
+function updateLobbyListUI() {
     updateStats();
     renderLobbies();
     toggleEmptyState();
@@ -348,7 +384,6 @@ function createLobbyCard(lobby) {
     card.onclick = () => viewLobby(lobby.id);
     
     const matchCount = lobby.matches.length;
-    const completedMatches = matchCount;
     const maxMatches = APP_CONFIG.maxMatches;
     
     card.innerHTML = `
@@ -369,7 +404,7 @@ function createLobbyCard(lobby) {
                 <div class="stat-mini-label">Teams</div>
             </div>
             <div class="stat-mini">
-                <div class="stat-mini-value">${completedMatches}/${maxMatches}</div>
+                <div class="stat-mini-value">${matchCount}/${maxMatches}</div>
                 <div class="stat-mini-label">Matches</div>
             </div>
             <div class="stat-mini">
@@ -406,6 +441,392 @@ function toggleEmptyState() {
 }
 
 /**
+ * Update lobby detail UI
+ */
+function updateLobbyDetailUI() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    // Update header
+    document.getElementById('currentLobbyName').textContent = lobby.name;
+    document.getElementById('currentLobbyId').textContent = lobby.id;
+    document.getElementById('currentMatchCount').textContent = `Match ${lobby.matches.length}/${APP_CONFIG.maxMatches}`;
+    
+    // Update rankings table
+    renderRankingsTable();
+    
+    // Update match history
+    renderMatchHistory();
+    
+    // Hide match form if visible
+    hideMatchForm();
+}
+
+/**
+ * Get current lobby
+ */
+function getCurrentLobby() {
+    return appState.lobbies.find(l => l.id === appState.currentLobbyId);
+}
+
+/**
+ * Show match input form
+ */
+function showMatchForm() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    // Check if max matches reached
+    if (lobby.matches.length >= APP_CONFIG.maxMatches) {
+        alert(`Maximum ${APP_CONFIG.maxMatches} matches per lobby reached`);
+        return;
+    }
+    
+    const form = document.getElementById('matchForm');
+    form.classList.remove('hidden');
+    
+    // Generate form inputs
+    renderMatchFormInputs();
+    
+    console.log('📝 Match form opened');
+}
+
+/**
+ * Hide match input form
+ */
+function hideMatchForm() {
+    const form = document.getElementById('matchForm');
+    form.classList.add('hidden');
+    console.log('❌ Match form closed');
+}
+
+/**
+ * Render match form inputs
+ */
+function renderMatchFormInputs() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    const container = document.getElementById('matchFormGrid');
+    container.innerHTML = '';
+    
+    lobby.teams.forEach((team, index) => {
+        const row = document.createElement('div');
+        row.className = 'team-input-row';
+        
+        row.innerHTML = `
+            <div class="team-name-display">${escapeHtml(team.name)}</div>
+            <input 
+                type="number" 
+                class="input-small" 
+                id="placement_${index}" 
+                placeholder="Place (1-12)" 
+                min="1" 
+                max="12"
+                value="${index + 1}"
+            >
+            <input 
+                type="number" 
+                class="input-small" 
+                id="kills_${index}" 
+                placeholder="Kills" 
+                min="0"
+                value="0"
+            >
+            <div class="booyah-checkbox">
+                <input 
+                    type="checkbox" 
+                    id="booyah_${index}"
+                >
+                <label for="booyah_${index}">Booyah</label>
+            </div>
+        `;
+        
+        container.appendChild(row);
+        
+        // Auto-check booyah for 1st place
+        const placementInput = row.querySelector(`#placement_${index}`);
+        const booyahCheckbox = row.querySelector(`#booyah_${index}`);
+        
+        placementInput.addEventListener('change', () => {
+            if (parseInt(placementInput.value) === 1) {
+                booyahCheckbox.checked = true;
+            }
+        });
+    });
+}
+
+/**
+ * Save match results
+ */
+function saveMatchResults() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    // Collect match data
+    const matchData = [];
+    const placements = [];
+    
+    for (let i = 0; i < lobby.teams.length; i++) {
+        const placement = parseInt(document.getElementById(`placement_${i}`).value) || 0;
+        const kills = parseInt(document.getElementById(`kills_${i}`).value) || 0;
+        const booyah = document.getElementById(`booyah_${i}`).checked;
+        
+        // Validate placement
+        if (placement < 1 || placement > 12) {
+            alert(`Team ${lobby.teams[i].name}: Placement must be between 1 and 12`);
+            return;
+        }
+        
+        placements.push(placement);
+        
+        matchData.push({
+            teamId: lobby.teams[i].id,
+            placement,
+            kills,
+            booyah
+        });
+    }
+    
+    // Check for duplicate placements
+    const uniquePlacements = new Set(placements);
+    if (uniquePlacements.size !== placements.length) {
+        alert('Each team must have a unique placement! Please check for duplicates.');
+        return;
+    }
+    
+    // Calculate points and update teams
+    matchData.forEach((data, index) => {
+        const team = lobby.teams[index];
+        const points = calculateMatchPoints(data.placement, data.kills, data.booyah);
+        
+        // Update team totals
+        team.totalPoints += points.total;
+        team.placementPoints += points.placement;
+        team.killPoints += points.kills;
+        if (data.booyah) {
+            team.booyahs += 1;
+        }
+        
+        // Add match to team history
+        team.matches.push({
+            matchNumber: lobby.matches.length + 1,
+            placement: data.placement,
+            kills: data.kills,
+            booyah: data.booyah,
+            points: points
+        });
+    });
+    
+    // Save match to lobby history
+    lobby.matches.push({
+        matchNumber: lobby.matches.length + 1,
+        timestamp: new Date().toISOString(),
+        results: matchData
+    });
+    
+    lobby.updatedAt = new Date().toISOString();
+    
+    // Save and update UI
+    saveAppData();
+    updateLobbyDetailUI();
+    
+    console.log(`✅ Match ${lobby.matches.length} saved`);
+}
+
+/**
+ * Calculate points for a match
+* @param {number} placement - Team placement (1-12)
+ * @param {number} kills - Number of kills
+ * @param {boolean} booyah - Whether team got booyah
+ * @returns {object} Points breakdown
+ */
+function calculateMatchPoints(placement, kills, booyah) {
+    const placementPoints = POINTS_SYSTEM.placement[placement] || 0;
+    const booyahPoints = booyah ? POINTS_SYSTEM.booyahBonus : 0;
+    const killPoints = kills * POINTS_SYSTEM.kill;
+    const totalPoints = placementPoints + booyahPoints + killPoints;
+    
+    return {
+        placement: placementPoints,
+        booyah: booyahPoints,
+        kills: killPoints,
+        total: totalPoints
+    };
+}
+
+/**
+ * Render rankings table
+ */
+function renderRankingsTable() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    const tbody = document.getElementById('rankingsTableBody');
+    tbody.innerHTML = '';
+    
+    // Sort teams by ranking rules
+    const sortedTeams = sortTeamsByRanking(lobby.teams);
+    
+    sortedTeams.forEach((team, index) => {
+        const rank = index + 1;
+        const row = createRankingRow(rank, team);
+        tbody.appendChild(row);
+    });
+}
+
+/**
+ * Sort teams by ranking rules
+ * 1. Total Points (highest first)
+ * 2. Booyahs (highest first)
+ * 3. Placement Points (highest first)
+ * 4. Kills (highest first)
+ */
+function sortTeamsByRanking(teams) {
+    return [...teams].sort((a, b) => {
+        // 1. Total Points
+        if (b.totalPoints !== a.totalPoints) {
+            return b.totalPoints - a.totalPoints;
+        }
+        
+        // 2. Booyahs
+        if (b.booyahs !== a.booyahs) {
+            return b.booyahs - a.booyahs;
+        }
+        
+        // 3. Placement Points
+        if (b.placementPoints !== a.placementPoints) {
+            return b.placementPoints - a.placementPoints;
+        }
+        
+        // 4. Kills
+        return b.killPoints - a.killPoints;
+    });
+}
+
+/**
+ * Create ranking table row
+ */
+function createRankingRow(rank, team) {
+    const tr = document.createElement('tr');
+    
+    // Rank badge class
+    let rankClass = 'rank-default';
+    if (rank === 1) rankClass = 'rank-1';
+    else if (rank === 2) rankClass = 'rank-2';
+    else if (rank === 3) rankClass = 'rank-3';
+    
+    tr.innerHTML = `
+        <td class="rank-col">
+            <div class="rank-badge ${rankClass}">${rank}</div>
+        </td>
+        <td class="team-col">
+            <div class="team-name-cell">${escapeHtml(team.name)}</div>
+        </td>
+        <td class="stat-col booyah-cell">${team.booyahs}</td>
+        <td class="stat-col">
+            <span class="stat-value">${team.placementPoints}</span>
+        </td>
+        <td class="stat-col">
+            <span class="stat-value">${team.killPoints}</span>
+        </td>
+        <td class="stat-col total-col">
+            <span class="total-points">${team.totalPoints}</span>
+        </td>
+    `;
+    
+    return tr;
+}
+
+/**
+ * Render match history
+ */
+function renderMatchHistory() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    const container = document.getElementById('matchHistoryList');
+    const emptyState = document.getElementById('emptyMatchHistory');
+    
+    if (lobby.matches.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    container.innerHTML = '';
+    
+    // Render matches in reverse order (newest first)
+    [...lobby.matches].reverse().forEach(match => {
+        const card = createMatchHistoryCard(match, lobby);
+        container.appendChild(card);
+    });
+}
+
+/**
+ * Create match history card
+ */
+function createMatchHistoryCard(match, lobby) {
+    const card = document.createElement('div');
+    card.className = 'match-history-card';
+    
+    // Find winner (placement 1)
+    const winnerResult = match.results.find(r => r.placement === 1);
+    const winnerTeam = lobby.teams.find(t => t.id === winnerResult.teamId);
+    
+    // Calculate total kills in match
+    const totalKills = match.results.reduce((sum, r) => sum + r.kills, 0);
+    
+    // Format date
+    const date = new Date(match.timestamp);
+    const dateStr = date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    card.innerHTML = `
+        <div class="match-header">
+            <div class="match-number">Match ${match.matchNumber}</div>
+            <div class="match-date">${dateStr}</div>
+        </div>
+        <div class="match-details">
+            <div class="match-detail-item">
+                <div class="detail-label">Winner</div>
+                <div class="detail-value" style="font-size: 1rem; color: var(--gold);">
+                    ${escapeHtml(winnerTeam.name)}
+                </div>
+            </div>
+            <div class="match-detail-item">
+                <div class="detail-label">Total Kills</div>
+                <div class="detail-value">${totalKills}</div>
+            </div>
+            <div class="match-detail-item">
+                <div class="detail-label">Booyahs</div>
+                <div class="detail-value">${match.results.filter(r => r.booyah).length}</div>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+/**
+ * Export table (placeholder for Phase 2)
+ */
+function exportTable() {
+    const lobby = getCurrentLobby();
+    if (!lobby) return;
+    
+    console.log('📥 Export functionality - Coming in Phase 2');
+    alert('Export functionality will be available in the next phase!');
+    
+    // This will be implemented in Card Maker phase
+}
+
+/**
  * Escape HTML to prevent XSS
  */
 function escapeHtml(text) {
@@ -415,7 +836,7 @@ function escapeHtml(text) {
 }
 
 /**
- * Calculate points for a team
+ * Calculate points for a team (legacy function)
  * @param {number} placement - Team placement (1-12)
  * @param {number} kills - Number of kills
  * @returns {object} Points breakdown
@@ -448,18 +869,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Export utility for future use
+ * Export utility for future use and debugging
  */
 window.ClashArena = {
     config: APP_CONFIG,
     state: appState,
     points: POINTS_SYSTEM,
     calculatePoints: calculatePoints,
+    calculateMatchPoints: calculateMatchPoints,
     save: saveAppData,
     load: loadAppData,
     createLobby: createLobby,
     deleteLobby: deleteLobby,
-    viewLobby: viewLobby
+    viewLobby: viewLobby,
+    sortTeams: sortTeamsByRanking,
+    getCurrentLobby: getCurrentLobby
 };
 
-console.log('🚀 Clash Arena ESP Manager script loaded - Phase 1 Complete');
+console.log('🚀 Clash Arena ESP Manager script loaded - Phase 1.5 Complete');
