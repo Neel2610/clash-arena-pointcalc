@@ -1,6 +1,6 @@
 // ========================================
 // CLASH ARENA ESP MANAGER - CORE SCRIPT
-// Version: 1.0.0
+// Version: 1.0.0 - Phase 1
 // ========================================
 
 /**
@@ -47,15 +47,17 @@ let appState = {
 };
 
 /**
+ * Lobby to be deleted (temp storage)
+ */
+let lobbyToDelete = null;
+
+/**
  * Initialize Application
  */
 function initializeApp() {
     console.log('🔥 Clash Arena ESP Manager initialized');
     console.log(`📦 Version: ${APP_CONFIG.version}`);
     console.log(`⚙️ Configuration loaded successfully`);
-    console.log(`🎯 Max Lobbies: ${APP_CONFIG.maxLobbies}`);
-    console.log(`👥 Teams per Lobby: ${APP_CONFIG.maxTeams}`);
-    console.log(`🏆 Matches per Lobby: ${APP_CONFIG.maxMatches}`);
     
     // Check for localStorage support
     if (typeof Storage !== 'undefined') {
@@ -69,8 +71,39 @@ function initializeApp() {
     appState.initialized = true;
     console.log('✅ System ready for operation');
     
-    // Log system info to page (for verification)
-    logSystemStatus();
+    // Initialize UI
+    initializeUI();
+    updateUI();
+}
+
+/**
+ * Initialize UI Event Listeners
+ */
+function initializeUI() {
+    // Create lobby buttons
+    document.getElementById('createLobbyBtn').addEventListener('click', openCreateModal);
+    document.getElementById('createFirstLobby').addEventListener('click', openCreateModal);
+    
+    // Modal controls
+    document.getElementById('modalClose').addEventListener('click', closeCreateModal);
+    document.getElementById('modalOverlay').addEventListener('click', closeCreateModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeCreateModal);
+    document.getElementById('confirmCreateBtn').addEventListener('click', createLobby);
+    
+    // Delete modal controls
+    document.getElementById('deleteModalClose').addEventListener('click', closeDeleteModal);
+    document.getElementById('deleteModalOverlay').addEventListener('click', closeDeleteModal);
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+    
+    // Enter key in lobby name input
+    document.getElementById('lobbyName').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            createLobby();
+        }
+    });
+    
+    console.log('🎨 UI initialized');
 }
 
 /**
@@ -103,18 +136,282 @@ function saveAppData() {
 }
 
 /**
- * Log system status to console
+ * Generate unique lobby ID
  */
-function logSystemStatus() {
-    const statusLog = {
-        timestamp: new Date().toISOString(),
-        version: APP_CONFIG.version,
-        initialized: appState.initialized,
-        lobbiesLoaded: appState.lobbies.length,
-        storageAvailable: typeof Storage !== 'undefined'
+function generateLobbyId() {
+    return 'lobby_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+/**
+ * Open create lobby modal
+ */
+function openCreateModal() {
+    // Check max lobbies
+    if (appState.lobbies.length >= APP_CONFIG.maxLobbies) {
+        alert(`Maximum ${APP_CONFIG.maxLobbies} lobbies allowed`);
+        return;
+                            }
+    const modal = document.getElementById('createLobbyModal');
+    const input = document.getElementById('lobbyName');
+    
+    modal.classList.add('active');
+    input.value = '';
+    input.focus();
+    
+    console.log('📝 Create lobby modal opened');
+}
+
+/**
+ * Close create lobby modal
+ */
+function closeCreateModal() {
+    const modal = document.getElementById('createLobbyModal');
+    modal.classList.remove('active');
+    console.log('❌ Create lobby modal closed');
+}
+
+/**
+ * Create new lobby
+ */
+function createLobby() {
+    const input = document.getElementById('lobbyName');
+    const lobbyName = input.value.trim();
+    
+    // Validate input
+    if (!lobbyName) {
+        alert('Please enter a lobby name');
+        input.focus();
+        return;
+    }
+    
+    if (lobbyName.length > 30) {
+        alert('Lobby name must be 30 characters or less');
+        return;
+    }
+    
+    // Check max lobbies
+    if (appState.lobbies.length >= APP_CONFIG.maxLobbies) {
+        alert(`Maximum ${APP_CONFIG.maxLobbies} lobbies allowed`);
+        return;
+    }
+    
+    // Create lobby object
+    const newLobby = {
+        id: generateLobbyId(),
+        name: lobbyName,
+        teams: initializeTeams(),
+        matches: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
     };
     
-    console.table(statusLog);
+    // Add to state
+    appState.lobbies.push(newLobby);
+    
+    // Save and update UI
+    saveAppData();
+    updateUI();
+    closeCreateModal();
+    
+    console.log(`✅ Lobby created: ${lobbyName} (${newLobby.id})`);
+}
+
+/**
+ * Initialize teams for a new lobby
+ */
+function initializeTeams() {
+    const teams = [];
+    for (let i = 1; i <= APP_CONFIG.maxTeams; i++) {
+        teams.push({
+            id: `team_${i}`,
+            name: `Team ${i}`,
+            placement: 0,
+            kills: 0,
+            totalPoints: 0,
+            placementPoints: 0,
+            killPoints: 0,
+            booyahs: 0
+        });
+    }
+    return teams;
+}
+
+/**
+ * Open delete lobby modal
+ */
+function openDeleteModal(lobbyId) {
+    const lobby = appState.lobbies.find(l => l.id === lobbyId);
+    if (!lobby) return;
+    
+    lobbyToDelete = lobbyId;
+    
+    const modal = document.getElementById('deleteLobbyModal');
+    const nameElement = document.getElementById('deleteLobbyName');
+    
+    nameElement.textContent = lobby.name;
+    modal.classList.add('active');
+    
+    console.log(`⚠️ Delete confirmation for: ${lobby.name}`);
+}
+
+/**
+ * Close delete lobby modal
+ */
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteLobbyModal');
+    modal.classList.remove('active');
+    lobbyToDelete = null;
+    console.log('❌ Delete modal closed');
+}
+
+/**
+ * Confirm and delete lobby
+ */
+function confirmDelete() {
+    if (!lobbyToDelete) return;
+    
+    const lobbyIndex = appState.lobbies.findIndex(l => l.id === lobbyToDelete);
+    if (lobbyIndex === -1) return;
+    
+    const deletedLobby = appState.lobbies[lobbyIndex];
+    
+    // Remove from state
+    appState.lobbies.splice(lobbyIndex, 1);
+    
+    // Save and update UI
+    saveAppData();
+    updateUI();
+    closeDeleteModal();
+    
+    console.log(`🗑️ Lobby deleted: ${deletedLobby.name}`);
+}
+
+/**
+ * Delete lobby
+ */
+function deleteLobby(lobbyId) {
+    openDeleteModal(lobbyId);
+}
+
+/**
+ * View/Select lobby (placeholder for Phase 2)
+ */
+function viewLobby(lobbyId) {
+    const lobby = appState.lobbies.find(l => l.id === lobbyId);
+    if (!lobby) return;
+    
+    console.log(`👁️ Viewing lobby: ${lobby.name} (Phase 2 feature)`);
+    // This will be implemented in Phase 2
+}
+
+/**
+ * Update entire UI
+ */
+function updateUI() {
+    updateStats();
+    renderLobbies();
+    toggleEmptyState();
+}
+
+/**
+ * Update statistics
+ */
+function updateStats() {
+    const totalLobbies = appState.lobbies.length;
+    const totalTeams = totalLobbies * APP_CONFIG.maxTeams;
+    const totalMatches = appState.lobbies.reduce((sum, lobby) => sum + lobby.matches.length, 0);
+    
+    document.getElementById('totalLobbies').textContent = totalLobbies;
+    document.getElementById('totalTeams').textContent = totalTeams;
+    document.getElementById('totalMatches').textContent = totalMatches;
+}
+
+/**
+ * Render all lobby cards
+ */
+function renderLobbies() {
+    const container = document.getElementById('lobbiesGrid');
+    container.innerHTML = '';
+    
+    appState.lobbies.forEach(lobby => {
+        const card = createLobbyCard(lobby);
+        container.appendChild(card);
+    });
+}
+
+/**
+ * Create a lobby card element
+ */
+function createLobbyCard(lobby) {
+    const card = document.createElement('div');
+    card.className = 'lobby-card';
+    card.onclick = () => viewLobby(lobby.id);
+    
+    const matchCount = lobby.matches.length;
+    const completedMatches = matchCount;
+    const maxMatches = APP_CONFIG.maxMatches;
+    
+    card.innerHTML = `
+        <div class="lobby-card-header">
+            <div class="lobby-info">
+                <h3 class="lobby-name">${escapeHtml(lobby.name)}</h3>
+                <div class="lobby-id">${lobby.id}</div>
+            </div>
+            <div class="lobby-actions">
+                <button class="action-btn delete" onclick="event.stopPropagation(); deleteLobby('${lobby.id}')" title="Delete Lobby">
+                    🗑️
+                </button>
+            </div>
+        </div>
+        <div class="lobby-stats-mini">
+            <div class="stat-mini">
+                <div class="stat-mini-value">${APP_CONFIG.maxTeams}</div>
+                <div class="stat-mini-label">Teams</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-value">${completedMatches}/${maxMatches}</div>
+                <div class="stat-mini-label">Matches</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-mini-value">${calculateLobbyTotalPoints(lobby)}</div>
+                <div class="stat-mini-label">Points</div>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+/**
+ * Calculate total points in a lobby
+ */
+function calculateLobbyTotalPoints(lobby) {
+    return lobby.teams.reduce((sum, team) => sum + team.totalPoints, 0);
+}
+
+/**
+ * Toggle empty state visibility
+ */
+function toggleEmptyState() {
+    const emptyState = document.getElementById('emptyState');
+    const lobbiesGrid = document.getElementById('lobbiesGrid');
+    
+    if (appState.lobbies.length === 0) {
+        emptyState.classList.remove('hidden');
+        lobbiesGrid.style.display = 'none';
+    } else {
+        emptyState.classList.add('hidden');
+        lobbiesGrid.style.display = 'grid';
+    }
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 /**
@@ -159,7 +456,10 @@ window.ClashArena = {
     points: POINTS_SYSTEM,
     calculatePoints: calculatePoints,
     save: saveAppData,
-    load: loadAppData
+    load: loadAppData,
+    createLobby: createLobby,
+    deleteLobby: deleteLobby,
+    viewLobby: viewLobby
 };
 
-console.log('🚀 Clash Arena ESP Manager
+console.log('🚀 Clash Arena ESP Manager script loaded - Phase 1 Complete');
