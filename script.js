@@ -4,8 +4,8 @@
 // ========================================
 
 /**
- * Application Configuration
- */
+* Application Configuration
+*/
 const APP_CONFIG = {
     name: 'Clash Arena ESP Manager',
     version: '1.6.0',
@@ -16,9 +16,9 @@ const APP_CONFIG = {
 };
 
 /**
- * Points System Configuration
- * FIXED: Booyah no longer adds +1 point, only used for tiebreaking
- */
+* Points System Configuration
+* FIXED: Booyah no longer adds +1 point, only used for tiebreaking
+*/
 const POINTS_SYSTEM = {
     kill: 1,
     placement: {
@@ -39,8 +39,8 @@ const POINTS_SYSTEM = {
 };
 
 /**
- * Application State
- */
+* Application State
+*/
 let appState = {
     lobbies: [],
     currentLobbyId: null,
@@ -48,30 +48,30 @@ let appState = {
 };
 
 /**
- * Lobby to be deleted (temp storage)
- */
+* Lobby to be deleted (temp storage)
+*/
 let lobbyToDelete = null;
 
 /**
- * Initialize Application
- */
+* Initialize Application
+*/
 function initializeApp() {
-    console.log('🔥 Clash Arena ESP Manager initialized');
-    console.log(`📦 Version: ${APP_CONFIG.version}`);
-    console.log(`⚙️ Configuration loaded successfully`);
-    console.log(`🎯 BOOYAH LOGIC: Tiebreaker only (no +1 point bonus)`);
+    console.log('ðŸ”¥ Clash Arena ESP Manager initialized');
+    console.log(`ðŸ“¦ Version: ${APP_CONFIG.version}`);
+    console.log(`âš™ï¸ Configuration loaded successfully`);
+    console.log(`ðŸŽ¯ BOOYAH LOGIC: Tiebreaker only (no +1 point bonus)`);
     
     // Check for localStorage support
     if (typeof Storage !== 'undefined') {
-        console.log('💾 LocalStorage available');
+        console.log('ðŸ’¾ LocalStorage available');
         loadAppData();
     } else {
-        console.warn('⚠️ LocalStorage not available - data will not persist');
+        console.warn('âš ï¸ LocalStorage not available - data will not persist');
     }
     
     // Set initialization flag
     appState.initialized = true;
-    console.log('✅ System ready for operation');
+    console.log('âœ… System ready for operation');
     
     // Initialize UI
     initializeUI();
@@ -79,8 +79,8 @@ function initializeApp() {
 }
 
 /**
- * Initialize UI Event Listeners
- */
+* Initialize UI Event Listeners
+*/
 function initializeUI() {
     // Create lobby buttons
     document.getElementById('createLobbyBtn').addEventListener('click', openCreateModal);
@@ -113,48 +113,48 @@ function initializeUI() {
         }
     });
     
-    console.log('🎨 UI initialized');
+    console.log('ðŸŽ¨ UI initialized');
 }
 
 /**
- * Load application data from localStorage
- */
+* Load application data from localStorage
+*/
 function loadAppData() {
     try {
         const savedData = localStorage.getItem(APP_CONFIG.storageKey);
         if (savedData) {
             appState.lobbies = JSON.parse(savedData);
-            console.log(`📥 Loaded ${appState.lobbies.length} lobbies from storage`);
+            console.log(`ðŸ“¥ Loaded ${appState.lobbies.length} lobbies from storage`);
         } else {
-            console.log('📝 No saved data found - starting fresh');
+            console.log('ðŸ“ No saved data found - starting fresh');
         }
     } catch (error) {
-        console.error('❌ Error loading data:', error);
+        console.error('âŒ Error loading data:', error);
     }
 }
 
 /**
- * Save application data to localStorage
- */
+* Save application data to localStorage
+*/
 function saveAppData() {
     try {
         localStorage.setItem(APP_CONFIG.storageKey, JSON.stringify(appState.lobbies));
-        console.log('💾 Data saved successfully');
+        console.log('ðŸ’¾ Data saved successfully');
     } catch (error) {
-        console.error('❌ Error saving data:', error);
+        console.error('âŒ Error saving data:', error);
     }
 }
 
 /**
- * Generate unique lobby ID
- */
+* Generate unique lobby ID
+*/
 function generateLobbyId() {
     return 'lobby_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 /**
- * Open create lobby modal
- */
+* Open create lobby modal
+*/
 function openCreateModal() {
     // Check max lobbies
     if (appState.lobbies.length >= APP_CONFIG.maxLobbies) {
@@ -169,21 +169,21 @@ function openCreateModal() {
     input.value = '';
     input.focus();
     
-    console.log('📝 Create lobby modal opened');
+    console.log('ðŸ“ Create lobby modal opened');
 }
 
 /**
- * Close create lobby modal
- */
+* Close create lobby modal
+*/
 function closeCreateModal() {
     const modal = document.getElementById('createLobbyModal');
     modal.classList.remove('active');
-    console.log('❌ Create lobby modal closed');
+    console.log('âŒ Create lobby modal closed');
 }
 
 /**
- * Create new lobby
- */
+* Create new lobby
+*/
 function createLobby() {
     const input = document.getElementById('lobbyName');
     const lobbyName = input.value.trim();
@@ -224,12 +224,12 @@ function createLobby() {
     updateLobbyListUI();
     closeCreateModal();
     
-    console.log(`✅ Lobby created: ${lobbyName} (${newLobby.id})`);
+    console.log(`âœ… Lobby created: ${lobbyName} (${newLobby.id})`);
 }
 
 /**
- * Initialize teams for a new lobby
- */
+* Initialize teams for a new lobby
+*/
 function initializeTeams() {
     const teams = [];
     for (let i = 1; i <= APP_CONFIG.maxTeams; i++) {
@@ -247,8 +247,8 @@ function initializeTeams() {
 }
 
 /**
- * Open delete lobby modal
- */
+* Open delete lobby modal
+*/
 function openDeleteModal(lobbyId) {
     const lobby = appState.lobbies.find(l => l.id === lobbyId);
     if (!lobby) return;
@@ -261,22 +261,22 @@ function openDeleteModal(lobbyId) {
     nameElement.textContent = lobby.name;
     modal.classList.add('active');
     
-    console.log(`⚠️ Delete confirmation for: ${lobby.name}`);
+    console.log(`âš ï¸ Delete confirmation for: ${lobby.name}`);
 }
 
 /**
- * Close delete lobby modal
- */
+* Close delete lobby modal
+*/
 function closeDeleteModal() {
     const modal = document.getElementById('deleteLobbyModal');
     modal.classList.remove('active');
     lobbyToDelete = null;
-    console.log('❌ Delete modal closed');
+    console.log('âŒ Delete modal closed');
 }
 
 /**
- * Confirm and delete lobby
- */
+* Confirm and delete lobby
+*/
 function confirmDelete() {
     if (!lobbyToDelete) return;
     
@@ -299,19 +299,19 @@ function confirmDelete() {
     updateLobbyListUI();
     closeDeleteModal();
     
-    console.log(`🗑️ Lobby deleted: ${deletedLobby.name}`);
+    console.log(`ðŸ—‘ï¸ Lobby deleted: ${deletedLobby.name}`);
 }
 
 /**
- * Delete lobby
- */
+* Delete lobby
+*/
 function deleteLobby(lobbyId) {
     openDeleteModal(lobbyId);
 }
 
 /**
- * View/Open lobby detail
- */
+* View/Open lobby detail
+*/
 function viewLobby(lobbyId) {
     const lobby = appState.lobbies.find(l => l.id === lobbyId);
     if (!lobby) return;
@@ -321,23 +321,23 @@ function viewLobby(lobbyId) {
     document.getElementById('lobbyDetailView').classList.remove('hidden');
     // Update detail view
     updateLobbyDetailUI();
-    console.log(`👁️ Viewing lobby: ${lobby.name}`);
+    console.log(`ðŸ‘ï¸ Viewing lobby: ${lobby.name}`);
 }
 
 /**
- * Show lobby list view
- */
+* Show lobby list view
+*/
 function showLobbyList() {
     appState.currentLobbyId = null;
     document.getElementById('lobbyDetailView').classList.add('hidden');
     document.getElementById('lobbyListView').classList.remove('hidden');
     updateLobbyListUI();
-    console.log('📋 Showing lobby list');
+    console.log('ðŸ“‹ Showing lobby list');
 }
 
 /**
- * Update lobby list UI
- */
+* Update lobby list UI
+*/
 function updateLobbyListUI() {
     updateStats();
     renderLobbies();
@@ -345,8 +345,8 @@ function updateLobbyListUI() {
 }
 
 /**
- * Update statistics
- */
+* Update statistics
+*/
 function updateStats() {
     const totalLobbies = appState.lobbies.length;
     const totalTeams = totalLobbies * APP_CONFIG.maxTeams;
@@ -357,8 +357,8 @@ function updateStats() {
 }
 
 /**
- * Render all lobby cards
- */
+* Render all lobby cards
+*/
 function renderLobbies() {
     const container = document.getElementById('lobbiesGrid');
     container.innerHTML = '';
@@ -369,8 +369,8 @@ function renderLobbies() {
 }
 
 /**
- * Create a lobby card element
- */
+* Create a lobby card element
+*/
 function createLobbyCard(lobby) {
     const card = document.createElement('div');
     card.className = 'lobby-card';
@@ -378,32 +378,32 @@ function createLobbyCard(lobby) {
     const matchCount = lobby.matches.length;
     const maxMatches = APP_CONFIG.maxMatches;
     card.innerHTML = `<div class="lobby-card-header">
-        <div class="lobby-info">
-            <h3 class="lobby-name">${escapeHtml(lobby.name)}</h3>
-            <div class="lobby-id">${lobby.id}</div>
-        </div>
-        <div class="lobby-actions">
-            <button onclick="event.stopPropagation(); deleteLobby('${lobby.id}')" class="delete-lobby-btn" title="Delete Lobby">&times;</button>
-        </div>
+    <div class="lobby-info">
+    <h3 class="lobby-name">${escapeHtml(lobby.name)}</h3>
+    <div class="lobby-id">${lobby.id}</div>
+    </div>
+    <div class="lobby-actions">
+    <button onclick="event.stopPropagation(); deleteLobby('${lobby.id}')" class="delete-lobby-btn" title="Delete Lobby">&times;</button>
+    </div>
     </div>
     <div class="lobby-card-body">
-        <div>Teams: ${lobby.teams.length}</div>
-        <div>Matches: ${matchCount}/${maxMatches}</div>
-        <div>Total Points: ${calculateLobbyTotalPoints(lobby)}</div>
+    <div>Teams: ${lobby.teams.length}</div>
+    <div>Matches: ${matchCount}/${maxMatches}</div>
+    <div>Total Points: ${calculateLobbyTotalPoints(lobby)}</div>
     </div>`;
     return card;
 }
 
 /**
- * Calculate total points in a lobby
- */
+* Calculate total points in a lobby
+*/
 function calculateLobbyTotalPoints(lobby) {
     return lobby.teams.reduce((sum, team) => sum + team.totalPoints, 0);
 }
 
 /**
- * Toggle empty state visibility
- */
+* Toggle empty state visibility
+*/
 function toggleEmptyState() {
     const emptyState = document.getElementById('emptyState');
     const lobbiesGrid = document.getElementById('lobbiesGrid');
@@ -417,8 +417,8 @@ function toggleEmptyState() {
 }
 
 /**
- * Update lobby detail UI
- */
+* Update lobby detail UI
+*/
 function updateLobbyDetailUI() {
     const lobby = getCurrentLobby();
     if (!lobby) return;
@@ -435,15 +435,15 @@ function updateLobbyDetailUI() {
 }
 
 /**
- * Get current lobby
- */
+* Get current lobby
+*/
 function getCurrentLobby() {
     return appState.lobbies.find(l => l.id === appState.currentLobbyId);
 }
 
 /**
- * Show match input form
- */
+* Show match input form
+*/
 function showMatchForm() {
     const lobby = getCurrentLobby();
     if (!lobby) return;
@@ -456,21 +456,21 @@ function showMatchForm() {
     form.classList.remove('hidden');
     // Generate form inputs
     renderMatchFormInputs();
-    console.log('📝 Match form opened');
+    console.log('ðŸ“ Match form opened');
 }
 
 /**
- * Hide match input form
- */
+* Hide match input form
+*/
 function hideMatchForm() {
     const form = document.getElementById('matchForm');
     form.classList.add('hidden');
-    console.log('❌ Match form closed');
+    console.log('âŒ Match form closed');
 }
 
 /**
- * Render match form inputs with editable team names
- */
+* Render match form inputs with editable team names
+*/
 function renderMatchFormInputs() {
     const lobby = getCurrentLobby();
     if (!lobby) return;
@@ -480,48 +480,48 @@ function renderMatchFormInputs() {
         const row = document.createElement('div');
         row.className = 'team-input-row';
         row.innerHTML = `
-            <div class="team-name-input-wrapper">
-                <span class="team-number-label">Team ${index + 1}</span>
-                <input 
-                    type="text" 
-                    class="team-name-editable" 
-                    id="teamname_${index}" 
-                    value="${escapeHtml(team.name)}"
-                    maxlength="25"
-                    placeholder="Team name"
-                >
-            </div>
-            <input 
-                type="number" 
-                class="input-small" 
-                id="placement_${index}" 
-                placeholder="Place (1-12)" 
-                min="1" 
-                max="12"
-                value="${index + 1}"
-            >
-            <input 
-                type="number" 
-                class="input-small" 
-                id="kills_${index}" 
-                placeholder="Kills" 
-                min="0"
-                value="0"
-            >
-            <div class="booyah-checkbox">
-                <input 
-                    type="checkbox" 
-                    id="booyah_${index}"
-                >
-                <label for="booyah_${index}">Booyah</label>
-            </div>
+        <div class="team-name-input-wrapper">
+        <span class="team-number-label">Team ${index + 1}</span>
+        <input
+        type="text"
+        class="team-name-editable"
+        id="teamname_${index}"
+        value="${escapeHtml(team.name)}"
+        maxlength="25"
+        placeholder="Team name"
+        >
+        </div>
+        <input
+        type="number"
+        class="input-small"
+        id="placement_${index}"
+        placeholder="Place (1-12)"
+        min="1"
+        max="12"
+        value="${index + 1}"
+        >
+        <input
+        type="number"
+        class="input-small"
+        id="kills_${index}"
+        placeholder="Kills"
+        min="0"
+        value="0"
+        >
+        <div class="booyah-checkbox">
+        <input
+        type="checkbox"
+        id="booyah_${index}"
+        >
+        <label for="booyah_${index}">Booyah</label>
+        </div>
         `;
         container.appendChild(row);
-
+        
         // Auto-check booyah for 1st place
         const placementInput = row.querySelector(`#placement_${index}`);
         const booyahCheckbox = row.querySelector(`#booyah_${index}`);
-
+        
         placementInput.addEventListener('change', () => {
             if (parseInt(placementInput.value) === 1) {
                 booyahCheckbox.checked = true;
@@ -531,9 +531,9 @@ function renderMatchFormInputs() {
 }
 
 /**
- * Save match results
- * UPDATED: Save team names and apply booyah tiebreaker logic
- */
+* Save match results
+* UPDATED: Save team names and apply booyah tiebreaker logic
+*/
 function saveMatchResults() {
     const lobby = getCurrentLobby();
     if (!lobby) return;
@@ -547,19 +547,19 @@ function saveMatchResults() {
         if (newTeamName && newTeamName.length > 0) {
             lobby.teams[i].name = newTeamName;
         }
-
+        
         const placement = parseInt(document.getElementById(`placement_${i}`).value) || 0;
         const kills = parseInt(document.getElementById(`kills_${i}`).value) || 0;
         const booyah = document.getElementById(`booyah_${i}`).checked;
-
+        
         // Validate placement
         if (placement < 1 || placement > 12) {
             alert(`${lobby.teams[i].name}: Placement must be between 1 and 12`);
             return;
         }
-
+        
         placements.push(placement);
-
+        
         matchData.push({
             teamId: lobby.teams[i].id,
             placement,
@@ -581,12 +581,12 @@ function saveMatchResults() {
         team.totalPoints += points.total;
         team.placementPoints += points.placement;
         team.killPoints += points.kills;
-
+        
         // Track booyahs separately for tiebreaking
         if (data.booyah) {
             team.booyahs += 1;
         }
-
+        
         // Add match to team history
         team.matches.push({
             matchNumber: lobby.matches.length + 1,
@@ -606,17 +606,17 @@ function saveMatchResults() {
     // Save and update UI
     saveAppData();
     updateLobbyDetailUI();
-    console.log(`✅ Match ${lobby.matches.length} saved`);
+    console.log(`âœ… Match ${lobby.matches.length} saved`);
 }
 
 /**
- * Calculate points for a match
- * FIXED: Booyah adds 0 points (only for tiebreaking)
- * @param {number} placement - Team placement (1-12)
- * @param {number} kills - Number of kills
- * @param {boolean} booyah - Whether team got booyah (for tracking only)
- * @returns {object} Points breakdown
- */
+* Calculate points for a match
+* FIXED: Booyah adds 0 points (only for tiebreaking)
+* @param {number} placement - Team placement (1-12)
+* @param {number} kills - Number of kills
+* @param {boolean} booyah - Whether team got booyah (for tracking only)
+* @returns {object} Points breakdown
+*/
 function calculateMatchPoints(placement, kills, booyah) {
     const placementPoints = POINTS_SYSTEM.placement[placement] || 0;
     const booyahPoints = 0; // FIXED: Always 0, booyah only for tiebreaking
@@ -631,8 +631,8 @@ function calculateMatchPoints(placement, kills, booyah) {
 }
 
 /**
- * Render rankings table with edit capability
- */
+* Render rankings table with edit capability
+*/
 function renderRankingsTable() {
     const lobby = getCurrentLobby();
     if (!lobby) return;
@@ -648,13 +648,13 @@ function renderRankingsTable() {
 }
 
 /**
- * Sort teams by ranking rules
- * FIXED: Proper tiebreaker order
- * Total Points (highest first)
- * Booyahs (highest first) - TIEBREAKER
- * Placement Points (highest first)
- * Kills (highest first)
- */
+* Sort teams by ranking rules
+* FIXED: Proper tiebreaker order
+* Total Points (highest first)
+* Booyahs (highest first) - TIEBREAKER
+* Placement Points (highest first)
+* Kills (highest first)
+*/
 function sortTeamsByRanking(teams) {
     return [...teams].sort((a, b) => {
         // 1. Total Points
@@ -672,165 +672,165 @@ function sortTeamsByRanking(teams) {
         // 4. Kills
         return b.killPoints - a.killPoints;
     });
-/**
- * Create ranking table row with editable team name
- */
-function createRankingRow(rank, team) {
-    const tr = document.createElement('tr');
-    // Rank badge class
-    let rankClass = 'rank-default';
-    if (rank === 1) rankClass = 'rank-1';
-    else if (rank === 2) rankClass = 'rank-2';
-    else if (rank === 3) rankClass = 'rank-3';
-    tr.innerHTML = `<td class="rank-col"> <div class="rank-badge ${rankClass}">${rank}</div> </td> <td class="team-col"> <div class="team-name-cell"> <span class="team-name-display" id="display_${team.id}">${escapeHtml(team.name)}</span> <button class="edit-team-btn" onclick="editTeamName('${team.id}')">✏️ Edit</button> </div> </td> <td class="stat-col booyah-cell">${team.booyahs}</td> <td class="stat-col"> <span class="stat-value">${team.placementPoints}</span> </td> <td class="stat-col"> <span class="stat-value">${team.killPoints}</span> </td> <td class="stat-col total-col"> <span class="total-points">${team.totalPoints}</span> </td>`;
-return tr;
-}
-/**
-Edit team name inline
-*/
-function editTeamName(teamId) {
-const lobby = getCurrentLobby();
-if (!lobby) return;
-const team = lobby.teams.find(t => t.id === teamId);
-if (!team) return;
-const displayElement = document.getElementById(display_${teamId});
-const currentName = team.name;
-// Create input
-const input = document.createElement('input');
-input.type = 'text';
-input.className = 'team-name-input';
-input.value = currentName;
-input.maxLength = 25;
-// Replace display with input
-const cell = displayElement.parentElement;
-cell.replaceChild(input, displayElement);
-input.focus();
-input.select();
-// Save on blur or enter
-const saveEdit = () => {
-const newName = input.value.trim();
-if (newName && newName.length > 0) {
-team.name = newName;
-saveAppData();
-}
-renderRankingsTable();
-};
-input.addEventListener('blur', saveEdit);
-input.addEventListener('keypress', (e) => {
-if (e.key === 'Enter') {
-saveEdit();
-}
-});
-console.log(✏️ Editing team: ${currentName});
-}
-/**
-Render match history
-*/
-function renderMatchHistory() {
-const lobby = getCurrentLobby();
-if (!lobby) return;
-const container = document.getElementById('matchHistoryList');
-const emptyState = document.getElementById('emptyMatchHistory');
-if (lobby.matches.length === 0) {
-container.innerHTML = '';
-emptyState.classList.remove('hidden');
-return;
-}
-emptyState.classList.add('hidden');
-container.innerHTML = '';
-// Render matches in reverse order (newest first)
-[...lobby.matches].reverse().forEach(match => {
-const card = createMatchHistoryCard(match, lobby);
-container.appendChild(card);
-});
-}
-/**
-Create match history card
-*/
-function createMatchHistoryCard(match, lobby) {
-const card = document.createElement('div');
-card.className = 'match-history-card';
-// Find winner (placement 1)
-const winnerResult = match.results.find(r => r.placement === 1);
-const winnerTeam = lobby.teams.find(t => t.id === winnerResult.teamId);
-// Calculate total kills in match
-const totalKills = match.results.reduce((sum, r) => sum + r.kills, 0);
-// Count booyahs
-const booyahCount = match.results.filter(r => r.booyah).length;
-// Format date
-const date = new Date(match.timestamp);
-const dateStr = date.toLocaleString('en-US', {
-month: 'short',
-day: 'numeric',
-hour: '2-digit',
-minute: '2-digit'
-});
-card.innerHTML = <div class="match-header"> <div class="match-number">Match ${match.matchNumber}</div> <div class="match-date">${dateStr}</div> </div> <div class="match-details"> <div class="match-detail-item"> <div class="detail-label">Winner</div> <div class="detail-value" style="font-size: 1rem; color: var(--gold);"> ${escapeHtml(winnerTeam.name)} </div> </div> <div class="match-detail-item"> <div class="detail-label">Total Kills</div> <div class="detail-value">${totalKills}</div> </div> <div class="match-detail-item"> <div class="detail-label">Booyahs</div> <div class="detail-value">${booyahCount}</div> </div> </div>;
-return card;
-}
-/**
-Export table (placeholder for Phase 2)
-*/
-function exportTable() {
-const lobby = getCurrentLobby();
-if (!lobby) return;
-console.log('📥 Export functionality - Coming in Phase 2');
-alert('Export functionality will be available in the next phase!');
-// This will be implemented in Card Maker phase
-}
-/**
-Escape HTML to prevent XSS
-*/
-function escapeHtml(text) {
-const div = document.createElement('div');
-div.textContent = text;
-return div.innerHTML;
-}
-/**
-Calculate points for a team (legacy function)
-@param {number} placement - Team placement (1-12)
-@param {number} kills - Number of kills
-@returns {object} Points breakdown
-*/
-function calculatePoints(placement, kills) {
-const placementPoints = POINTS_SYSTEM.placement[placement] || 0;
-const killPoints = kills * POINTS_SYSTEM.kill;
-const totalPoints = placementPoints + killPoints;
-return {
-placement: placementPoints,
-booyah: 0,
-kills: killPoints,
-total: totalPoints
-};
-}
-/**
-DOM Ready Event
-*/
-document.addEventListener('DOMContentLoaded', () => {
-console.log('📄 DOM loaded');
-initializeApp();
-// Add animation classes after load
-setTimeout(() => {
-document.body.classList.add('loaded');
-}, 100);
-});
-/**
-Export utility for future use and debugging
-*/
-window.ClashArena = {
-config: APP_CONFIG,
-state: appState,
-points: POINTS_SYSTEM,
-calculatePoints: calculatePoints,
-calculateMatchPoints: calculateMatchPoints,
-save: saveAppData,
-load: loadAppData,
-createLobby: createLobby,
-deleteLobby: deleteLobby,
-viewLobby: viewLobby,
-sortTeams: sortTeamsByRanking,
-getCurrentLobby: getCurrentLobby,
-editTeamName: editTeamName
-};
-console.log('🚀 Clash Arena ESP Manager script loaded - Phase 1.6 Complete');
-console.log('🎯 Key Changes: Booyah = Tiebreaker only, Editable team names, Better mobile table');
+    /**
+    * Create ranking table row with editable team name
+    */
+    function createRankingRow(rank, team) {
+        const tr = document.createElement('tr');
+        // Rank badge class
+        let rankClass = 'rank-default';
+        if (rank === 1) rankClass = 'rank-1';
+        else if (rank === 2) rankClass = 'rank-2';
+        else if (rank === 3) rankClass = 'rank-3';
+        tr.innerHTML = `<td class="rank-col"> <div class="rank-badge ${rankClass}">${rank}</div> </td> <td class="team-col"> <div class="team-name-cell"> <span class="team-name-display" id="display_${team.id}">${escapeHtml(team.name)}</span> <button class="edit-team-btn" onclick="editTeamName('${team.id}')">âœï¸ Edit</button> </div> </td> <td class="stat-col booyah-cell">${team.booyahs}</td> <td class="stat-col"> <span class="stat-value">${team.placementPoints}</span> </td> <td class="stat-col"> <span class="stat-value">${team.killPoints}</span> </td> <td class="stat-col total-col"> <span class="total-points">${team.totalPoints}</span> </td>`;
+        return tr;
+    }
+    /**
+    Edit team name inline
+    */
+    function editTeamName(teamId) {
+        const lobby = getCurrentLobby();
+        if (!lobby) return;
+        const team = lobby.teams.find(t => t.id === teamId);
+        if (!team) return;
+        const displayElement = document.getElementById(display_${teamId});
+        const currentName = team.name;
+        // Create input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'team-name-input';
+        input.value = currentName;
+        input.maxLength = 25;
+        // Replace display with input
+        const cell = displayElement.parentElement;
+        cell.replaceChild(input, displayElement);
+        input.focus();
+        input.select();
+        // Save on blur or enter
+        const saveEdit = () => {
+            const newName = input.value.trim();
+            if (newName && newName.length > 0) {
+                team.name = newName;
+                saveAppData();
+            }
+            renderRankingsTable();
+        };
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveEdit();
+            }
+        });
+        console.log(`âœï¸ Editing team: ${currentName});
+    }
+    /**
+    Render match history
+    */
+    function renderMatchHistory() {
+        const lobby = getCurrentLobby();
+        if (!lobby) return;
+        const container = document.getElementById('matchHistoryList');
+        const emptyState = document.getElementById('emptyMatchHistory');
+        if (lobby.matches.length === 0) {
+            container.innerHTML = '';
+            emptyState.classList.remove('hidden');
+            return;
+        }
+        emptyState.classList.add('hidden');
+        container.innerHTML = '';
+        // Render matches in reverse order (newest first)
+        [...lobby.matches].reverse().forEach(match => {
+            const card = createMatchHistoryCard(match, lobby);
+            container.appendChild(card);
+        });
+    }
+    /**
+    Create match history card
+    */
+    function createMatchHistoryCard(match, lobby) {
+        const card = document.createElement('div');
+        card.className = 'match-history-card';
+        // Find winner (placement 1)
+        const winnerResult = match.results.find(r => r.placement === 1);
+        const winnerTeam = lobby.teams.find(t => t.id === winnerResult.teamId);
+        // Calculate total kills in match
+        const totalKills = match.results.reduce((sum, r) => sum + r.kills, 0);
+        // Count booyahs
+        const booyahCount = match.results.filter(r => r.booyah).length;
+        // Format date
+        const date = new Date(match.timestamp);
+        const dateStr = date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        card.innerHTML = <div class="match-header"> <div class="match-number">Match ${match.matchNumber}</div> <div class="match-date">${dateStr}</div> </div> <div class="match-details"> <div class="match-detail-item"> <div class="detail-label">Winner</div> <div class="detail-value" style="font-size: 1rem; color: var(--gold);"> ${escapeHtml(winnerTeam.name)} </div> </div> <div class="match-detail-item"> <div class="detail-label">Total Kills</div> <div class="detail-value">${totalKills}</div> </div> <div class="match-detail-item"> <div class="detail-label">Booyahs</div> <div class="detail-value">${booyahCount}</div> </div> </div>;
+        return card;
+    }
+    /**
+    Export table (placeholder for Phase 2`)
+    */
+    function exportTable() {
+        const lobby = getCurrentLobby();
+        if (!lobby) return;
+        console.log('ðŸ“¥ Export functionality - Coming in Phase 2');
+        alert('Export functionality will be available in the next phase!');
+        // This will be implemented in Card Maker phase
+    }
+    /**
+    Escape HTML to prevent XSS
+    */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    /**
+    Calculate points for a team (legacy function)
+    @param {number} placement - Team placement (1-12)
+    @param {number} kills - Number of kills
+    @returns {object} Points breakdown
+    */
+    function calculatePoints(placement, kills) {
+        const placementPoints = POINTS_SYSTEM.placement[placement] || 0;
+        const killPoints = kills * POINTS_SYSTEM.kill;
+        const totalPoints = placementPoints + killPoints;
+        return {
+            placement: placementPoints,
+            booyah: 0,
+            kills: killPoints,
+            total: totalPoints
+        };
+    }
+    /**
+    DOM Ready Event
+    */
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('ðŸ“„ DOM loaded');
+        initializeApp();
+        // Add animation classes after load
+        setTimeout(() => {
+            document.body.classList.add('loaded');
+        }, 100);
+    });
+    /**
+    Export utility for future use and debugging
+    */
+    window.ClashArena = {
+        config: APP_CONFIG,
+        state: appState,
+        points: POINTS_SYSTEM,
+        calculatePoints: calculatePoints,
+        calculateMatchPoints: calculateMatchPoints,
+        save: saveAppData,
+        load: loadAppData,
+        createLobby: createLobby,
+        deleteLobby: deleteLobby,
+        viewLobby: viewLobby,
+        sortTeams: sortTeamsByRanking,
+        getCurrentLobby: getCurrentLobby,
+        editTeamName: editTeamName
+    };
+    console.log('ðŸš€ Clash Arena ESP Manager script loaded - Phase 1.6 Complete');
+    console.log('ðŸŽ¯ Key Changes: Booyah = Tiebreaker only, Editable team names, Better mobile table');
