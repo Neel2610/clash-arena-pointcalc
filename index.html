@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- html2canvas CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -147,10 +150,16 @@
                             <span class="title-icon">🏆</span>
                             Live Rankings
                         </h3>
-                        <button class="btn-secondary" id="exportTableBtn">
-                            <span class="btn-icon">⬇</span>
-                            Export
-                        </button>
+                        <div class="action-buttons-group">
+                            <button class="btn-secondary" id="generateCardBtn">
+                                <span class="btn-icon">🎨</span>
+                                Generate Card
+                            </button>
+                            <button class="btn-secondary" id="exportCSVBtn">
+                                <span class="btn-icon">📊</span>
+                                Export CSV
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Table with horizontal scroll wrapper -->
@@ -188,6 +197,170 @@
                     </div>
                     <div class="empty-state-small" id="emptyMatchHistory">
                         <p>No matches recorded yet</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- CARD GENERATOR VIEW -->
+            <section class="card-generator-section hidden" id="cardGeneratorView">
+                
+                <!-- Back Button -->
+                <div class="detail-header">
+                    <button class="btn-back" id="backToLobbyFromCard">
+                        <span class="btn-icon">←</span>
+                        Back to Lobby
+                    </button>
+                    <div class="detail-title-section">
+                        <h2 class="detail-title">Card Generator</h2>
+                        <div class="detail-subtitle">
+                            Customize and export your results card
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customization Panel -->
+                <div class="customization-panel">
+                    <h3 class="panel-title">
+                        <span class="title-icon">🎨</span>
+                        Customization Options
+                    </h3>
+                    
+                    <div class="custom-controls-grid">
+                        <!-- Background Image -->
+                        <div class="control-group">
+                            <label class="control-label">Background Image URL</label>
+                            <input 
+                                type="text" 
+                                id="bgImageInput" 
+                                class="control-input" 
+                                placeholder="https://example.com/image.jpg"
+                            >
+                            <button class="btn-small" id="applyBgBtn">Apply</button>
+                        </div>
+
+                        <!-- Background Color -->
+                        <div class="control-group">
+                            <label class="control-label">Background Color</label>
+                            <div class="color-input-wrapper">
+                                <input 
+                                    type="color" 
+                                    id="bgColorInput" 
+                                    class="control-color"
+                                    value="#0a0a0f"
+                                >
+                                <input 
+                                    type="text" 
+                                    id="bgColorText" 
+                                    class="control-input-small"
+                                    value="#0a0a0f"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Text Color -->
+                        <div class="control-group">
+                            <label class="control-label">Text Color</label>
+                            <div class="color-input-wrapper">
+                                <input 
+                                    type="color" 
+                                    id="textColorInput" 
+                                    class="control-color"
+                                    value="#ffffff"
+                                >
+                                <input 
+                                    type="text" 
+                                    id="textColorText" 
+                                    class="control-input-small"
+                                    value="#ffffff"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Overlay Color -->
+                        <div class="control-group">
+                            <label class="control-label">Text Background Overlay</label>
+                            <div class="color-input-wrapper">
+                                <input 
+                                    type="color" 
+                                    id="overlayColorInput" 
+                                    class="control-color"
+                                    value="#1a1a24"
+                                >
+                                <input 
+                                    type="range" 
+                                    id="overlayOpacity" 
+                                    class="control-range"
+                                    min="0"
+                                    max="100"
+                                    value="90"
+                                >
+                                <span class="range-value" id="overlayOpacityValue">90%</span>
+                            </div>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="control-group">
+                            <button class="btn-secondary full-width" id="resetStylesBtn">
+                                <span class="btn-icon">↺</span>
+                                Reset to Default
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Preview -->
+                <div class="card-preview-section">
+                    <div class="section-header-small">
+                        <h3 class="section-title-small">
+                            <span class="title-icon">👁️</span>
+                            Live Preview
+                        </h3>
+                        <button class="btn-primary" id="downloadCardBtn">
+                            <span class="btn-icon">⬇</span>
+                            Download Card
+                        </button>
+                    </div>
+
+                    <!-- Result Card -->
+                    <div class="result-card" id="resultCard">
+                        <div class="card-background-layer" id="cardBgLayer"></div>
+                        <div class="card-content-layer" id="cardContentLayer">
+                            
+                            <!-- Card Header -->
+                            <div class="card-header">
+                                <div class="card-logo">⚔️</div>
+                                <div class="card-title-section">
+                                    <h1 class="card-main-title" id="cardLobbyName">LOBBY NAME</h1>
+                                    <p class="card-subtitle" id="cardMatchCount">After 0 Matches</p>
+                                </div>
+                            </div>
+
+                            <!-- Card Table -->
+                            <div class="card-table-wrapper">
+                                <table class="card-table" id="cardTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="card-rank-col">Rank</th>
+                                            <th class="card-team-col">Team Name</th>
+                                            <th class="card-stat-col">Booyahs</th>
+                                            <th class="card-stat-col">Place</th>
+                                            <th class="card-stat-col">Kills</th>
+                                            <th class="card-stat-col card-total-col">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cardTableBody">
+                                        <!-- Will be populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Card Footer -->
+                            <div class="card-footer">
+                                <p class="card-footer-text">Powered by <span class="card-highlight">CLASH ARENA</span></p>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
@@ -256,7 +429,8 @@
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- Scripts -->
     <script src="script.js"></script>
+    <script src="cardGenerator.js"></script>
 </body>
 </html>
