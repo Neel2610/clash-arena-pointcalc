@@ -1799,3 +1799,19 @@ body {
         page-break-inside: avoid;
     }
 }
+.image-upload-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.file-name {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.control-file-input {
+    display: none;
+}
