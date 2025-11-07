@@ -249,30 +249,34 @@ function populateCard() {
 }
 
 /**
- * Create card table row
+ * Create card table row - FREE FIRE STYLE
  */
 function createCardTableRow(rank, team) {
     const tr = document.createElement('tr');
     
-    let rankClass = 'card-rank-default';
-    if (rank === 1) rankClass = 'card-rank-1';
-    else if (rank === 2) rankClass = 'card-rank-2';
-    else if (rank === 3) rankClass = 'card-rank-3';
+    let rankClass = 'ff-rank-default';
+    if (rank === 1) rankClass = 'ff-rank-1';
+    else if (rank === 2) rankClass = 'ff-rank-2';
+    else if (rank === 3) rankClass = 'ff-rank-3';
     
     tr.innerHTML = `
-        <td class="card-rank-col">
-            <div class="card-rank-badge ${rankClass}">${rank}</div>
+        <td class="col-rank">
+            <div class="ff-rank-badge ${rankClass}">${rank}</div>
         </td>
-        <td class="card-team-col">
-            <span class="card-team-name">${escapeHtml(team.name)}</span>
+        <td class="col-team">
+            <span class="ff-team-name">${escapeHtml(team.name)}</span>
         </td>
-        <td class="card-stat-col">
-            <span class="card-booyah-value">${team.booyahs}</span>
+        <td class="col-stat">
+            <span class="ff-booyah">${team.booyahs}</span>
         </td>
-        <td class="card-stat-col">${team.placementPoints}</td>
-        <td class="card-stat-col">${team.killPoints}</td>
-        <td class="card-stat-col card-total-col">
-            <span class="card-total-value">${team.totalPoints}</span>
+        <td class="col-stat">
+            <span class="ff-stat">${team.placementPoints}</span>
+        </td>
+        <td class="col-stat">
+            <span class="ff-stat">${team.killPoints}</span>
+        </td>
+        <td class="col-total">
+            <span class="ff-total">${team.totalPoints}</span>
         </td>
     `;
     
@@ -354,15 +358,16 @@ function updateCardStyles() {
 }
 
 /**
- * Reset card styles to default
+/**
+ * Reset card styles to default - FREE FIRE THEME
  */
 function resetCardStyles() {
     cardState = {
         backgroundImage: '',
-        backgroundColor: '#0a0a0f',
+        backgroundColor: '#0f0f0f',  // Changed from #0a0a0f
         textColor: '#ffffff',
-        overlayColor: '#1a1a24',
-        overlayOpacity: 90
+        overlayColor: '#0f0f0f',     // Changed from #1a1a24
+        overlayOpacity: 95            // Changed from 90
     };
     
     // Reset inputs
@@ -376,17 +381,17 @@ function resetCardStyles() {
     const overlayOpacityValue = document.getElementById('overlayOpacityValue');
     
     if (bgImageInput) bgImageInput.value = '';
-    if (bgColorInput) bgColorInput.value = '#0a0a0f';
-    if (bgColorText) bgColorText.value = '#0a0a0f';
+    if (bgColorInput) bgColorInput.value = '#0f0f0f';
+    if (bgColorText) bgColorText.value = '#0f0f0f';
     if (textColorInput) textColorInput.value = '#ffffff';
     if (textColorText) textColorText.value = '#ffffff';
-    if (overlayColorInput) overlayColorInput.value = '#1a1a24';
-    if (overlayOpacity) overlayOpacity.value = '90';
-    if (overlayOpacityValue) overlayOpacityValue.textContent = '90%';
+    if (overlayColorInput) overlayColorInput.value = '#0f0f0f';
+    if (overlayOpacity) overlayOpacity.value = '95';
+    if (overlayOpacityValue) overlayOpacityValue.textContent = '95%';
     
     updateCardStyles();
     
-    console.log('↺ Card styles reset to default');
+    console.log('↺ Card styles reset to Free Fire tournament theme');
 }
 
 /**
