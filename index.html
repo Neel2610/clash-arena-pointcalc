@@ -227,17 +227,32 @@
                     </h3>
                     
                     <div class="custom-controls-grid">
-                        <!-- Background Image -->
-                        <div class="control-group">
-                            <label class="control-label">Background Image URL</label>
-                            <input 
-                                type="text" 
-                                id="bgImageInput" 
-                                class="control-input" 
-                                placeholder="https://example.com/image.jpg"
-                            >
-                            <button class="btn-small" id="applyBgBtn">Apply</button>
-                        </div>
+                        <!-- In index.html, replace the Background Image section with this: -->
+
+<div class="control-group">
+    <label class="control-label">Background Image</label>
+    <div class="image-upload-wrapper">
+        <input 
+            type="file" 
+            id="bgImageFile" 
+            class="control-file-input" 
+            accept="image/*"
+            style="display: none;"
+        >
+        <button class="btn-small" id="uploadBgBtn">
+            📁 Upload Image
+        </button>
+        <span class="file-name" id="fileName">No file chosen</span>
+    </div>
+    <input 
+        type="text" 
+        id="bgImageInput" 
+        class="control-input" 
+        placeholder="Or paste image URL here"
+        style="margin-top: 0.5rem;"
+    >
+    <button class="btn-small" id="applyBgBtn">Apply URL</button>
+</div>
 
                         <!-- Background Color -->
                         <div class="control-group">
