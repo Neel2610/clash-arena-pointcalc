@@ -76,7 +76,50 @@ function initializeCardGenerator() {
             }
         });
     }
+
+    // Add this in initializeCardGenerator() function, after the existing background controls:
+
+// Upload image file
+const uploadBtn = document.getElementById('uploadBgBtn');
+const fileInput = document.getElementById('bgImageFile');
+const fileNameDisplay = document.getElementById('fileName');
+
+if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
     
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image too large. Please select an image under 5MB');
+                return;
+            }
+            
+            // Display file name
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = file.name;
+            }
+            
+            // Convert to base64 and apply
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                cardState.backgroundImage = event.target.result;
+                updateCardStyles();
+                console.log('✅ Image uploaded and applied');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
     // Text color
     const textColorInput = document.getElementById('textColorInput');
     const textColorText = document.getElementById('textColorText');
