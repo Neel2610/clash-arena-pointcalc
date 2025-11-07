@@ -45,21 +45,25 @@ Access
 http://localhost:8000
 📁 Project Structure
 clash-arena-esp/
-├── index.html          # Main HTML structure
-├── style.css           # Esports theme styles
-├── script.js           # Core application logic
-├── README.md           # This file
-└── assets/             # (Future) Images and resources
+   ├── index.html          # Main HTML structure
+   ├── style.css           # Esports theme styles
+   ├── script.js           # Core application logic
+   ├── README.md           # This file
+   └── assets/             # (Future) Images and resources
 🎮 Points System
+
 Kill Points
 1 kill = 1 point
+
 Placement Points
 Position
 Points
+
 Bonus
 1st
 12
 +1 Booyah
+
 2nd
 9
 -
